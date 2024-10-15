@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leeftijd Calculator</title>
+</head>
+<body>
+    <h2>Geboortedata invoeren</h2>
+    <p>Voer geboortedata in het formaat (YYYY-MM-DD) in, elke datum op een eigen regel.</p>
+    
+    <textarea id="birthdates" rows="5" cols="30" placeholder="Voer hier meerdere geboortedata in..."></textarea>
+    <br>
+    <label for="targetYears">Doel aantal jaren:</label>
+    <input type="number" id="targetYears" value="100"> <!-- Hier kan de gebruiker het aantal jaren invoeren -->
+    <br><br>
+    <button onclick="berekenLeeftijd()">Bereken</button>
+    
+    <h3>Resultaten:</h3>
+    <p id="resultaat"></p>
+    
+    <script>
+        function berekenLeeftijd() {
+            const input = document.getElementById('birthdates').value.trim();
+            const dataStrings = input.split("\n").map(d => d.trim()).filter(d => d !== "");
+            const vandaag = new Date();
+            let totaleDagen = 0;
+
+            const doelJaren = parseInt(document.getElementById('targetYears').value); // Haal het doel aantal jaren op
+            if (isNaN(doelJaren) || doelJaren <= 0) {
+                document.getElementById('resultaat').innerText = "Voer een geldig doel aantal jaren in.";
+                return;
+            }
+
+            if (dataStrings.length === 0) {
+                document.getElementById('resultaat').innerText = "Geen geldige geboortedata ingevoerd.";
+                return;
+            }
+
+            // Verwerken van elke geboortedatum
+            for (let datumString of dataStrings) {
+                const geboortedatum = new Date(datumString);
+                if (!isNaN(geboortedatum.getTime())) {  // Check voor geldige datum
+                    const dagen = Math.floor((vandaag - geboortedatum) / (1000 * 60 * 60 * 24));  // Bereken aantal dagen
+                    totaleDagen += dagen;
+                } else {
+                    document.getElementById('resultaat').innerText = `Ongeldige datum: ${datumString}`;
+                    return;
+                }
+            }
+
+            // Bereken totale jaren en resterende dagen
+            const totaleJaren = Math.floor(totaleDagen / 365);
+            const resterendeDagen = totaleDagen % 365;
+
+            // Bereken hoeveel dagen nodig zijn om het doel aantal jaren te maken
+            const benodigdeJaren = doelJaren - totaleJaren;
+            const toekomstigeDatum = new Date(vandaag);
+            toekomstigeDatum.setDate(toekomstigeDatum.getDate() + benodigdeJaren/dataStrings.length * 365 - resterendeDagen);
+
+            // Resultaat tonen
+            document.getElementById('resultaat').innerText = 
+                `Totaal aantal jaren: ${totaleJaren} jaar en ${resterendeDagen} dagen.\n` +
+                `Precies ${doelJaren} jaar bereikt op: ${toekomstigeDatum.toDateString()}`;
+        }
+    </script>
+</body>
+</html>
+
+
